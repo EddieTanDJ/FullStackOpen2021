@@ -1,3 +1,2 @@
 # FullStackOpen2021
-This is course from FullStackOpen2021
-[]: # Path: https://fullstackopen.com/en/
+This is course from [FullStackOpen2021](https://fullstackopen.com/en/)
