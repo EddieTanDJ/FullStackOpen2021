@@ -1,0 +1,17 @@
+@startuml
+skinparam sequenceMessageAlign center
+participant "**Browser**" as B
+participant "**Server**" as S
+
+
+B -> S: HTTP POST:https://studies.cs.helsinki.fi/exampleapp/new_note_spa
+note over B 
+Content: application/json
+Data: {"content": "Hello", date: "2021-12-19T08:56:56.447Z"}
+end note
+S --> B: 201 Created
+note over B
+Browser execute event handler function
+and renders the display
+end note
+@enduml

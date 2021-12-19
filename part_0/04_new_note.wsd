@@ -1,0 +1,29 @@
+@startuml
+skinparam sequenceMessageAlign center
+participant "**Browser**" as B
+participant "**Server**" as S
+
+
+B -> S: HTTP POST:https://studies.cs.helsinki.fi/exampleapp/new_note
+note over B 
+Data: {"Note": "Hello"}
+end note
+S --> B: HTTP GET request to /notes
+B -> S: HTTP GET https://studies.cs.helsinki.fi/exampleapp/notes
+S --> B: HTML-code
+B -> S: HTTP GET https://studies.cs.helsinki.fi/exampleapp/main.css
+S --> B: main.css
+B -> S: HTTP GET https://studies.cs.helsinki.fi/exampleapp/main.js
+S --> B: main.js
+note over B
+Browser execute main.js code 
+and request JSON data 
+from server using XMLHttpRequest
+end note
+B->S: HTTP GET https://studies.cs.helsinki.fi/exampleapp/data.json
+S --> B: JSON Data (content: "Hello", date:"2021-12-19")
+note over B
+Browser execute event handler function
+and renders the display
+end note
+@enduml
