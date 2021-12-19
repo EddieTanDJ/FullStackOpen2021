@@ -3,7 +3,6 @@ skinparam sequenceMessageAlign center
 participant "**Browser**" as B
 participant "**Server**" as S
 
-
 B -> S: HTTP POST:https://studies.cs.helsinki.fi/exampleapp/new_note_spa
 note over B 
 Content: application/json
