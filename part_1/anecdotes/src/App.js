@@ -9,7 +9,7 @@ const Anecdote = (props) => {
   return (
     <div>
       <p>{props.text}</p>
-      {/* <p>{props.voteCount}</p> */}
+      <p>has {props.voteCount} votes</p>
     </div>
   )
 }
@@ -21,7 +21,29 @@ const Button = (props) => {
   )
 }
 
-
+// Create most voted anecdote component
+const MostVotedAnecdote = (props) => {
+  const mostVoted = Math.max(...props.votes)
+  const index = props.votes.indexOf(mostVoted)
+  const anecdote = props.anecdotes[index]
+  console.log(anecdote)
+  console.log(mostVoted)  
+  if(mostVoted === 0) {
+    return (
+      <div>
+        <p>No votes yet</p>
+      </div>
+    )
+  }
+  else {
+    return (
+      <div>
+        <p>{anecdote}</p>
+        <p>has {mostVoted} votes</p>
+      </div>
+    )
+  }
+}
 
 const App = () => {
   const anecdotes = [
@@ -35,26 +57,40 @@ const App = () => {
   ]
    
   const [selected, setSelected] = useState(0)
+  // Initialize the state of the vote counter for each anecdote to 0
+  const [votes, setVotes] = useState(new Array(anecdotes.length).fill(0))
+
+const vote = () => {
+  // ...votes creates a new object that has copies of all of the properties of the votes object.
+  const newVotes = [...votes]
+
+  newVotes[selected] = votes[selected] + 1
+  setVotes(newVotes)
+  console.log(votes)
+}
 
   // Event handler for button for next anecdote
 const nextAnecdote = () => {
   // Select a random anecdote between 0 and the length of the array
-  // const newIndex = Math.floor(Math.random() * anecdotes.length)
-  let newIndex = 0;
-  if (selected === anecdotes.length - 1) {
-     newIndex = 0
-  } else {
-     newIndex = selected + 1
-  }
+  const newIndex = Math.floor(Math.random() * anecdotes.length)
+  // let newIndex = 0;
+  // if (selected === anecdotes.length - 1) {
+  //    newIndex = 0
+  // } else {
+  //    newIndex = selected + 1
+  // }
   setSelected(newIndex)
 }
 
   return (
     <div>
       <Header Name="Anecdote of the day"/>
-      {anecdotes[selected]}
+      <Anecdote text={anecdotes[selected]} voteCount={votes[selected]}/>
       <br></br>
+      <Button onClick={vote} text="Vote"/>
       <Button onClick={nextAnecdote} text="Next anecdote"/>
+      <Header Name="Anecdote with most votes"/>
+      <MostVotedAnecdote anecdotes={anecdotes} votes={votes}/>
     </div>
   )
 }
