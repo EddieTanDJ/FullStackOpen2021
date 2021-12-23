@@ -23,9 +23,6 @@ const notes = [
   },
 ]
 
-const result = notes.map(note => note.id)
-console.log(result)
-
 
 ReactDOM.render(
     <App notes = {notes}/>,
