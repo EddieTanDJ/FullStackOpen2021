@@ -1,21 +1,28 @@
-import React, {useState} from 'react'
+import React, {useState, useEffect} from 'react'
 import './App.css'
 import Filter from './components/Filter'
 import PersonForm from './components/PersonForm'
 import Persons from './components/Persons'
+import axios from 'axios'                                                                                    
 
 const App = () => {
-  const [persons, setPersons] = useState([
-       { name: 'Arto Hellas', number: '040-123456', id: 1 },
-    { name: 'Ada Lovelace', number: '39-44-5323523', id: 2 },
-    { name: 'Dan Abramov', number: '12-43-234345', id: 3 },
-    { name: 'Mary Poppendieck', number: '39-23-6423122', id: 4 }
-  ]) 
+  const [persons, setPersons] = useState([]) 
   // For the name and phone input
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   // For the filter input
   const [newFilter, setNewFilter] = useState('')
+
+  // Ex 2.11 Using the axios library to fetch data from an API
+  useEffect(() => {
+    console.log('effect')
+    axios.get('http://localhost:3001/persons')
+      .then(response => {
+        console.log('promise fulfilled')
+        setPersons(response.data)
+      }
+    )
+  }, [])
 
   //Ex 2.6, 2.8 Add a new person
   const addPerson = (event) => {

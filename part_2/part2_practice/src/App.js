@@ -1,14 +1,37 @@
-import React , {useState} from "react"
+import React , {useState, useEffect} from "react"
+import axios from "axios"
 import Notes from './components/Notes'
 
 
 const App = (props) => {
     // Initialize state func with the notes array passed in the props
-    const [notes, setNotes] = useState(props.notes)
+    const [notes, setNotes] = useState([])
     // Initialize state func with an empty string to store the new note
     const [newNote, setNewNote] = useState('')
     // Initialize state func with boolean to allow us to view the important notes
     const [showAll, setShowAll] = useState(true)
+
+    // Fetches the notes from the server using Axios
+    const hook = () => {
+      console.log('effect')
+      // Get the data from server
+      axios
+          .get('http://localhost:3001/notes')
+          .then(response => {
+              console.log('promise fulfilled')
+              // When data arrived, set the notes array to the data
+              setNotes(response.data)
+          }
+      )
+    }
+    // useEffect is a React hook that runs a piece of code based on a specific condition
+    // The first argument is a function that runs when the effect is run
+    // The second argument is an array of values that cause the effect to rerun
+    useEffect(hook, [])
+
+    // Trigger when there is re-rendering of the note component
+    console.log('render', notes.length, 'notes')
+
     // Add a new note
     const addNote = (e) => {
         e.preventDefault()
