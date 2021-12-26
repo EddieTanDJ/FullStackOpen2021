@@ -3,12 +3,17 @@ import personService from "./services/persons";
 import Persons from "./components/Persons";
 import PersonForm from "./components/PersonForm";
 import Filter from "./components/Filter";
+import Notification from "./components/Notification";
 
 const App = () => {
   const [persons, setPersons] = useState([]);
   const [newName, setNewName] = useState("");
   const [newNumber, setNewNumber] = useState("");
   const [filter, setFilter] = useState("");
+  const [errorMessage, setErrorMessage] = useState({
+    message: null,
+    type: "error",
+  });
 
   // Get all the contacts from the server
   useEffect(() => {
@@ -34,9 +39,26 @@ const App = () => {
           // The returned value of the promise is the deleted person
           // Removing the deleted person from the application's state is done with the array filter method.
           setPersons(persons.filter((person) => person.id !== id));
+          setErrorMessage({
+            message: `Successfully deleted ${name}`,
+            type: "success",
+          });
+          setTimeout(() => {
+            setErrorMessage({
+              message: null
+            });
+          }, 3000);
         })
         .catch((_) => {
-          alert(`The person '${name}' has already been deleted from server`);
+          setErrorMessage({
+            message: `The person ${name} was already deleted from server`,
+            type: "error",
+          });
+          setTimeout(() => {
+            setErrorMessage({ message: null, type: "error" });
+          }, 3000);
+          // Remove the person from the state with array filter method
+          setPersons(persons.filter((person) => person.id !== id));
         });
     }
   };
@@ -82,30 +104,40 @@ const App = () => {
               personService.getAll().then((res) => {
                 setPersons(res.data);
               })
-              })
+            })
             .catch((_) => {
-              alert(
-                `The person '${name}' has already been deleted from server`
-              );
+              setErrorMessage({
+                message: `The person ${name} was already deleted from server`,
+                type: "error",
+              });
+              setTimeout(() => {
+                setErrorMessage({ message: null, type: "error" });
+              }, 3000);
+              // Remove the person from the state with array filter method
+              setPersons(persons.filter((person) => person.name !== name));
             });
         }
       } else window.alert(`${name} is already added to phonebook`);
-    // If name is not empty and does not exist in the server, add the person object to the server
+      // If name is not empty and does not exist in the server, add the person object to the server
     } else {
       // Reset values
       setNewName("");
       setNewNumber("");
       personService.create(personObj)
-      .then((res) => {
-        console.log(res);
-        // Add new person to persons state
-        setPersons([...persons, personObj]);
-      })
-      .then((_) => {
-        // After the add person is done, get all the persons object from the server
-        personService.getAll().then((res) => {
-          setPersons(res.data);
+        .then((res) => {
+          console.log(res);
+          // Add new person to persons state
+          setPersons([...persons, personObj]);
+          setErrorMessage({ message: `Added ${personObj.name}`, type: "success" });
+          setTimeout(() => {
+            setErrorMessage(null);
+          }, 3000)
         })
+        .then((_) => {
+          // After the add person is done, get all the persons object from the server
+          personService.getAll().then((res) => {
+            setPersons(res.data);
+          })
         });
     }
   };
@@ -113,6 +145,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification error={errorMessage} />
       <Filter value={filter} setValue={setFilter} />
       <h2>add a new</h2>
       <PersonForm
