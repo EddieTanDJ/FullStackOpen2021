@@ -1,82 +1,131 @@
-import React, {useState, useEffect} from 'react'
-import './App.css'
-import Filter from './components/Filter'
-import PersonForm from './components/PersonForm'
-import Persons from './components/Persons'
-import axios from 'axios'                                                                                    
+import React, { useState, useEffect } from "react";
+import personService from "./services/persons";
+import Persons from "./components/Persons";
+import PersonForm from "./components/PersonForm";
+import Filter from "./components/Filter";
 
 const App = () => {
-  const [persons, setPersons] = useState([]) 
-  // For the name and phone input
-  const [newName, setNewName] = useState('')
-  const [newNumber, setNewNumber] = useState('')
-  // For the filter input
-  const [newFilter, setNewFilter] = useState('')
+  const [persons, setPersons] = useState([]);
+  const [newName, setNewName] = useState("");
+  const [newNumber, setNewNumber] = useState("");
+  const [filter, setFilter] = useState("");
 
-  // Ex 2.11 Using the axios library to fetch data from an API
+  // Get all the contacts from the server
   useEffect(() => {
-    console.log('effect')
-    axios.get('http://localhost:3001/persons')
-      .then(response => {
-        console.log('promise fulfilled')
-        setPersons(response.data)
-      }
-    )
-  }, [])
+    personService.getAll().then((res) => {
+      setPersons(res.data);
+    });
+  }, []);
 
-  //Ex 2.6, 2.8 Add a new person
-  const addPerson = (event) => {
-    event.preventDefault()
-    console.log('addPerson:', {newName}, {newNumber})
-    const newPerson = {
-      name: newName,
-      number: newNumber,
-      id: persons.length + 1
+  // Delete a new contact from the server
+  /*
+  A convention has also developed regarding the use of _, 
+  which is frequently used to preface the name of an object's
+  property or method that is private. 
+  */
+  const deletePerson = (id, name) => {
+    // Prompt the user to confirm the deletion
+    console.log("deletePerson", id, name);
+    if (window.confirm(`Delete ${name} ?`)) {
+      personService
+        .deleteEntry(id)
+        .then((_) => {
+          // The _ is a placeholder for the returned value of the promise
+          // The returned value of the promise is the deleted person
+          // Removing the deleted person from the application's state is done with the array filter method.
+          setPersons(persons.filter((person) => person.id !== id));
+        })
+        .catch((_) => {
+          alert(`The person '${name}' has already been deleted from server`);
+        });
     }
-    //Ex 2.7: Send a alert message if the name exists in the array 
-    if (persons.find(person => person.name === newPerson.name)) {
-      console.log('Person exists:' , newPerson.name, newPerson.number)
-      alert(`${newPerson.name} is already added to phonebook`)
-      setNewName('')
-      setNewNumber('')
+  };
+  // Add a new contact to the server
+  const addPersons = (event) => {
+    // Prevent the default action of the form
+    event.preventDefault();
+    const name = newName;
+    const number = newNumber;
+    // Create a new person object with the new name and number
+    const personObj = { name, number };
+    // If name is empty, alert the user
+    if (name === "" || name === undefined) {
+      window.alert("Please input a valid name!");
+    }
+    // If name is not empty, check if the name already exists in the server 
+    else if (persons.map((person) => person.name).includes(name)) {
+      // Get the person object from the server
+      const person = persons.find((person) => person.name.includes(name));
+      // Prompt the user to confirm the update of the number if number does not match
+      if (person.number !== number) {
+        if (
+          window.confirm(
+            `${name} is already added to phonebook, replace old number with a new one?`
+          )
+        ) {
+          // Update the number of the person object
+          personService
+            .update(person.id, personObj)
+            .then((_) => {
+              // Update the person object in the application's state
+              // map method creates a new array by mapping every item from the old array into an item 
+              // in the new array
+              // In this case, the new array is created conditionally so that if person.id === id is true, 
+              // we return the updated person object, otherwise we return the original person object.
+              const copy = persons.map((p) =>
+                p.id === person.id ? personObj : p
+              );
+              setPersons(copy);
+            })
+            .then((_) => {
+              // After the update is done, get all the persons object from the server
+              personService.getAll().then((res) => {
+                setPersons(res.data);
+              })
+              })
+            .catch((_) => {
+              alert(
+                `The person '${name}' has already been deleted from server`
+              );
+            });
+        }
+      } else window.alert(`${name} is already added to phonebook`);
+    // If name is not empty and does not exist in the server, add the person object to the server
     } else {
-      setPersons(persons.concat(newPerson))
-      setNewName('')
-      setNewNumber('')
-  }
-}
-
-
-  //Handle name input change
-  const handleNameChange = (event) => {
-    setNewName(event.target.value)
-  }
-  // Handle number input change
-  const handleNumberChange = (event) => {
-    setNewNumber(event.target.value)
-  }
-
-  // Handle filter input change
-  const handleFilterChange = (event) => {
-    setNewFilter(event.target.value)
-  }
-
-  // Filter the persons array
-  const personsToShow = persons.filter(person =>
-    person.name.toLowerCase().includes(newFilter.toLowerCase())
-  )
+      // Reset values
+      setNewName("");
+      setNewNumber("");
+      personService.create(personObj)
+      .then((res) => {
+        console.log(res);
+        // Add new person to persons state
+        setPersons([...persons, personObj]);
+      })
+      .then((_) => {
+        // After the add person is done, get all the persons object from the server
+        personService.getAll().then((res) => {
+          setPersons(res.data);
+        })
+        });
+    }
+  };
 
   return (
-    <div className='App'>
-      <h1>Phonebook</h1>
-      <Filter value={newFilter} onChange={handleFilterChange} />
-      <h2>Add a new</h2>
-      <PersonForm onSubmit={addPerson} newName={newName} handleNameChange = {handleNameChange}
-      newNumber = {newNumber} handleNumberChange = {handleNumberChange} />
+    <div>
+      <h2>Phonebook</h2>
+      <Filter value={filter} setValue={setFilter} />
+      <h2>add a new</h2>
+      <PersonForm
+        onSubmit={addPersons}
+        newName={newName}
+        setNewName={setNewName}
+        newNumber={newNumber}
+        setNewNumber={setNewNumber}
+      />
       <h2>Numbers</h2>
-      <Persons persons={personsToShow} />
+      <Persons persons={persons} filter={filter} deletePerson={deletePerson} />
     </div>
-  )
-}
+  );
+};
 
-export default App
+export default App;
