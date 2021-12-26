@@ -2,7 +2,8 @@ import React, { useState, useEffect } from "react"
 import axios from "axios"
 import Notes from './components/Notes'
 import noteService from './services/notes'
-
+import Notification from './components/Notification'
+import Footer from './components/Footer'
 
 const App = (props) => {
   // Initialize state func with the notes array passed in the props
@@ -11,6 +12,8 @@ const App = (props) => {
   const [newNote, setNewNote] = useState('')
   // Initialize state func with boolean to allow us to view the important notes
   const [showAll, setShowAll] = useState(true)
+  // Initalize state func with an empty string to store the error message
+  const [errorMessage, setErrorMessage] = useState(null)
 
   // Fetches the notes from the server using Axios
   const hook = () => {
@@ -95,10 +98,14 @@ const App = (props) => {
         setNotes(notes.map(note => note.id !== id ? note : returnedNote))
       })
         .catch(error => {
-          alert(
-            `the note '${note.content}' was already deleted from the server`
+          setErrorMessage(
+            `Note '${note.content}' was already deleted from the server`
           )
-          // Removing an already deleted note from the application's state is done with the array filter method.
+          // Show the notification for 5 seconds
+          setTimeout(() => {
+            setErrorMessage(null)
+          }, 5000)
+          // Remove the note from the state with array filter method
           setNotes(notes.filter(n => n.id !== id))
         })
   }
@@ -106,6 +113,7 @@ const App = (props) => {
   return (
     <div>
       <h1>Notes</h1>
+      <Notification message={errorMessage} />
       <div>
         {/* setShowAll(!showAll) -> Switch from True (Filter the important notes) or False (Show all notes) and vice versa */}
         <button onClick={() => setShowAll(!showAll)}>
@@ -127,7 +135,7 @@ const App = (props) => {
         <input type="text" name="newNote" value={newNote} onChange={handleNoteChange} placeholder="a new note" />
         <button type="submit">Add</button>
       </form>
-
+      <Footer />
     </div>
   )
 }
