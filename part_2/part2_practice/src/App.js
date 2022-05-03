@@ -5,6 +5,9 @@ import noteService from './services/notes'
 import Notification from './components/Notification'
 import Footer from './components/Footer'
 
+
+const baseUrl = '/api/notes'
+
 const App = (props) => {
   // Initialize state func with the notes array passed in the props
   const [notes, setNotes] = useState([])
@@ -15,19 +18,36 @@ const App = (props) => {
   // Initalize state func with an empty string to store the error message
   const [errorMessage, setErrorMessage] = useState(null)
 
+  const getAll = () => {
+    const request = axios.get(baseUrl)
+    return request.then(response => response.data)
+  }
+
   // Fetches the notes from the server using Axios
+  // const hook = () => {
+  //   console.log('effect')
+  //   // Get the data from server
+  //   noteService
+  //     .getAll()
+  //     .then(initialNotes  => {
+  //       // When data arrived, set the notes array to the data
+  //       console.log('initialNotes', initialNotes)
+  //       setNotes(initialNotes)
+  //     }
+  //     )
+  // }
+
+  // Link the hook to backend
   const hook = () => {
     console.log('effect')
     // Get the data from server
-    noteService
-      .getAll()
-      .then(initialNotes  => {
-        // When data arrived, set the notes array to the data
-        console.log('initialNotes', initialNotes)
-        setNotes(initialNotes)
-      }
-      )
+    axios.get(baseUrl)
+      .then(response => {
+        console.log('response', response)
+        setNotes(response.data)
+      })
   }
+
   // useEffect is a React hook that runs a piece of code based on a specific condition
   // The first argument is a function that runs when the effect is run
   // The second argument is an array of values that cause the effect to rerun
@@ -170,5 +190,4 @@ const App = (props) => {
     </div>
   )
 }
-
 export default App;
