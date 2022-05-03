@@ -64,6 +64,8 @@ const App = (props) => {
   // When data changes, re-render the UI
   // Reacter value is a state variable
   // Setter function is a function that changes the state
+  // Handles react data changes
+  // Optional argument is the default state
   const [counter, setCounter] = useState(0)
   // Set left and right State with initial value of 0 in JSON using useState
   const [clicks, setClicks] = useState({
@@ -96,8 +98,8 @@ const App = (props) => {
   //   setCounter(counter + 1)
   // }, 1000)
 
-
-  // Event handler for Plus button
+  // () => is an ES6 Javascript arrow function
+  // Event handler for Plus buttonq
   const handlePlus = () => setCounter(counter + 1)
   // Event handler for Minus button
   const handleMinus = () => setCounter(counter - 1)
@@ -108,6 +110,7 @@ const App = (props) => {
     const newClicks = {
       // Using object spread operator to copy the right clicks
       // ...clicks creates a new object that has copies of all of the properties of the clicks object.
+      // Same as shallow copy
       // {...clicks} is the same as {left: clicks.left, right: clicks.right}
       ...clicks,
       left: clicks.left + 1
@@ -124,6 +127,8 @@ const App = (props) => {
     }
     setClicks(newClicks)
   }
+
+
 
   /*
   * Can be simplified to:
@@ -146,6 +151,7 @@ const App = (props) => {
       <Hello name={name} age={age}/>
       <Display counter={counter} />
       <button onClick={helloMsg("eddie")}> button</button>
+       {/* Take note event handler is always a function or a reference to the function */}
       <Button onClick={handlePlus} text="Plus"/>
       <Button onClick={handleMinus} text="Minus"/>
       <Button onClick={handleSetToZero} text="Set to Zero"/>

@@ -37,7 +37,8 @@ const App = () => {
     if (filteredCountries.length === 1) {
       console.log("weather effect")
       const location = filteredCountries[0].capital;
-      let apikey = config.api_key.substring(1, config.api_key.length - 2)
+      let apikey = config.api_key
+      console.log(apikey)
       const url = ` https://api.openweathermap.org/data/2.5/weather?q=${location}&appid=${apikey}`;
       axios.get(url).then((res) => {
         if (res.status === 200) {

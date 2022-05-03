@@ -110,6 +110,35 @@ const App = (props) => {
         })
   }
 
+  const deleteNote = (id) => {
+    console.log(`delete note ${id}`)
+    // Find the note that has the same id
+    const note = notes.find(n => n.id === id)
+    // Send a DELETE request to the server with the note
+    noteService
+      .deleteNote(id)
+      .then(returnedNote  => {
+        console.log('note deleted', returnedNote)
+        //  callback function sets the component's notes state to a new array that contains all the items from the previous notes array,
+        // except for the old note which is replaced by the updated version of it returned by the server
+        // map method creates a new array by mapping every item from the old array into an item in the new array
+        // In this case, the new array is created conditionally so that if note.id !== id is true, we simply copy the item from the old array into the new array.
+        // If the condition is false, then the note object returned by the server is added to the array instead.
+        setNotes(notes.filter(n => n.id !== id))
+      })
+      .catch(error => {
+        setErrorMessage(
+          `Note '${note.content}' was already deleted from the server`
+        )
+        // Show the notification for 5 seconds
+        setTimeout(() => {
+          setErrorMessage(null)
+        }, 5000)
+        // Remove the note from the state with array filter method
+        setNotes(notes.filter(n => n.id !== id))
+      })
+    }
+
   return (
     <div>
       <h1>Notes</h1>
@@ -127,7 +156,9 @@ const App = (props) => {
           <Notes
             key={note.id}
             notes={note}
-            toggleImportance={() => toggleImportanceOf(note.id)} />
+            toggleImportance={() => toggleImportanceOf(note.id)} 
+            deleteNote={() => deleteNote(note.id)}
+            />
         )}
       </ul>
       {/* Submit form */}
