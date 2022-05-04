@@ -40,4 +40,11 @@ const update = (id, newObject) => {
     return request.then(response => response.data)
 }
 
-export default { getAll, create, update }
+const deleteNote = (id) => {
+    console.log('delete', id, baseUrl)
+    const request = axios.delete(`${baseUrl}/${id}`)
+    console.log('request', request)
+    return request.then(response => response.data)
+}
+
+export default { getAll, create, update, deleteNote }
