@@ -2,7 +2,7 @@ if (process.env.NODE_ENV !== 'production') {
   require('dotenv').config()
 }
 const express = require('express')
-const bodyParser = require('body-parser') 
+const bodyParser = require('body-parser')
 const app = express()
 const Note = require('./models/note')
 
@@ -46,7 +46,7 @@ app.post('/api/notes', (request, response, next) => {
 
 app.delete('/api/notes/:id', (request, response, next) => {
   Note.findByIdAndRemove(request.params.id)
-    .then(result => {
+    .then(() => {
       response.status(204).end()
     })
     .catch(error => next(error))
@@ -93,7 +93,7 @@ app.use(unknownEndpoint)
 const errorHandler = (error, request, response, next) => {
   console.error(error.message)
 
-  if (error.name === 'CastError' && error.kind == 'ObjectId') {
+  if (error.name === 'CastError' && error.kind === 'ObjectId') {
     return response.status(400).send({ error: 'malformatted id' })
   }  else if (error.name === 'ValidationError') {
     return response.status(400).json({ error: error.message })
