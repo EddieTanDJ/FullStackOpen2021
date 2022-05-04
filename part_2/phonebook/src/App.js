@@ -117,7 +117,7 @@ const App = () => {
               setPersons(persons.filter((person) => person.name !== name));
             });
         }
-      } else window.alert(`${name} is already added to phonebook`);
+      } 
       // If name is not empty and does not exist in the server, add the person object to the server
     } else {
       // Reset values
@@ -133,12 +133,24 @@ const App = () => {
             setErrorMessage(null);
           }, 3000)
         })
+        .catch((error) => {
+          setErrorMessage({
+            message: `${error.response.data.error}`,
+            type: "error",
+          })
+        })
         .then((_) => {
           // After the add person is done, get all the persons object from the server
           personService.getAll().then((res) => {
             setPersons(res.data);
           })
-        });
+        })
+        .catch((error) => {
+          setErrorMessage({
+            message: `${error.response.data.error}`,
+            type: "error",
+          })
+        })
     }
   };
 

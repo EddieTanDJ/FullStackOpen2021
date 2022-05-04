@@ -46,7 +46,7 @@ const Statistics = (props) => {
        </div>
     )
   }
-  // Step 6: Display in HTML table
+  // Step 6: Display in HTML tab 
   return (
     <div>
       <table>
