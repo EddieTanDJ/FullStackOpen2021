@@ -117,7 +117,7 @@ const App = () => {
               setPersons(persons.filter((person) => person.name !== name));
             });
         }
-      } else window.alert(`${name} is already added to phonebook`);
+      } 
       // If name is not empty and does not exist in the server, add the person object to the server
     } else {
       // Reset values
