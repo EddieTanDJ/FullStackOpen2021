@@ -1,10 +1,12 @@
+if (process.env.NODE_ENV !== 'production') {
+  require('dotenv').config()
+}
 const express = require('express')
+const bodyParser = require('body-parser') 
 const app = express()
-const cors = require('cors')
-require('dotenv').config()
 const Note = require('./models/note')
 
-const requestLogger = (request, response, next) => {
+const logger = (request, response, next) => {
   console.log('Method:', request.method)
   console.log('Path:  ', request.path)
   console.log('Body:  ', request.body)
@@ -12,24 +14,22 @@ const requestLogger = (request, response, next) => {
   next()
 }
 
-app.use(express.json())
-
-app.use(requestLogger)
-
-app.use(cors())
-
 app.use(express.static('build'))
+app.use(bodyParser.json())
+app.use(logger)
 
 app.get('/', (req, res) => {
   res.send('<h1>Hello World!</h1>')
 })
 
-app.post('/api/notes', (request, response) => {
-  const body = request.body
+app.get('/api/notes', (request, response) => {
+  Note.find({}).then(notes => {
+    response.json(notes)
+  })
+})
 
-  if (body.content === undefined) {
-    return response.status(400).json({ error: 'content missing' })
-  }
+app.post('/api/notes', (request, response, next) => {
+  const body = request.body
 
   const note = new Note({
     content: body.content,
@@ -37,15 +37,11 @@ app.post('/api/notes', (request, response) => {
     date: new Date(),
   })
 
-  note.save().then(savedNote => {
-    response.json(savedNote)
-  })
-})
-
-app.get('/api/notes', (request, response) => {
-  Note.find({}).then(notes => {
-    response.json(notes)
-  })
+  note.save()
+    .then(savedNote => {
+      response.json(savedNote.toJSON())
+    })
+    .catch(error => next(error))
 })
 
 app.delete('/api/notes/:id', (request, response, next) => {
@@ -97,8 +93,10 @@ app.use(unknownEndpoint)
 const errorHandler = (error, request, response, next) => {
   console.error(error.message)
 
-  if (error.name === 'CastError') {
+  if (error.name === 'CastError' && error.kind == 'ObjectId') {
     return response.status(400).send({ error: 'malformatted id' })
+  }  else if (error.name === 'ValidationError') {
+    return response.status(400).json({ error: error.message })
   }
 
   next(error)

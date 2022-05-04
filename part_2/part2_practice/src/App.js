@@ -23,19 +23,6 @@ const App = (props) => {
     return request.then(response => response.data)
   }
 
-  // Fetches the notes from the server using Axios
-  // const hook = () => {
-  //   console.log('effect')
-  //   // Get the data from server
-  //   noteService
-  //     .getAll()
-  //     .then(initialNotes  => {
-  //       // When data arrived, set the notes array to the data
-  //       console.log('initialNotes', initialNotes)
-  //       setNotes(initialNotes)
-  //     }
-  //     )
-  // }
 
   // Link the hook to backend
   const hook = () => {

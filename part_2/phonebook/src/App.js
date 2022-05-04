@@ -133,12 +133,24 @@ const App = () => {
             setErrorMessage(null);
           }, 3000)
         })
+        .catch((error) => {
+          setErrorMessage({
+            message: `${error.response.data.error}`,
+            type: "error",
+          })
+        })
         .then((_) => {
           // After the add person is done, get all the persons object from the server
           personService.getAll().then((res) => {
             setPersons(res.data);
           })
-        });
+        })
+        .catch((error) => {
+          setErrorMessage({
+            message: `${error.response.data.error}`,
+            type: "error",
+          })
+        })
     }
   };
 
