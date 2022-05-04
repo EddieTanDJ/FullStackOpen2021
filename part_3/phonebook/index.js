@@ -6,30 +6,8 @@ const cors = require('cors')
 app.use(morgan(':method :url :status :res[body-length] - :response-time ms :body'))
 app.use(express.json())
 app.use(cors())
-
-let phonebook = 
-[
-    { 
-      "id": 1,
-      "name": "Arto Hellas", 
-      "number": "040-123456"
-    },
-    { 
-      "id": 2,
-      "name": "Ada Lovelace", 
-      "number": "39-44-5323523"
-    },
-    { 
-      "id": 3,
-      "name": "Dan Abramov", 
-      "number": "12-43-234345"
-    },
-    { 
-      "id": 4,
-      "name": "Mary Poppendieck", 
-      "number": "39-23-6423122"
-    }
-]
+require('dotenv').config()
+const Person = require('./models/Person')
 // Create a new token for logging using morgan
 //JSON.stringify() method converts a JavaScript object or value to a JSON string.
 morgan.token('body', (req, res) => 
@@ -51,7 +29,11 @@ app.get('/', (request, response) => {
 
 // Get list of person API
 app.get('/api/persons', (request, response) => {
-    response.json(phonebook)
+    Person
+        .find({})
+        .then(persons => {
+            response.json(persons)
+        })
 })
 
 // Information of the phonebook
@@ -64,14 +46,11 @@ app.get('/info', (request, response) => {
 
 // Get information of the single phone entry in the phonebook
 app.get('/api/persons/:id', (request, response) => {
-    const id = Number(request.params.id)
-    const person = phonebook.find(person => person.id === id)
-    if(person) {
-        response.json(person)
-    }
-    else {
-        response.status(404).end()
-    }
+    Person
+        .findById(request.params.id)
+        .then(person => {
+            response.json(person)
+    })
 })
 
 //Delete a phone entry from the phonebook
@@ -87,29 +66,24 @@ const generateId = () => (
 
 //Create a new phone entry in the phonebook
 app.post('/api/persons', (request, response) => {
-    const person = request.body
-    console.log(person)
-    if(!person.name || !person.number) {
+    const newPerson = request.body
+    console.log(newPerson.name)
+
+    if (!newPerson.name || !newPerson.number) {
         return response.status(400).json({
             error: 'The name or number is missing'
-        })
+          })
     }
-    else if (phonebook.find(entry => entry.name === person.name)) {
-        return response.status(400).json({
-            error: 'The name already exists in the phonebook'
-        })
-    }
-    let contact = {
-        id: generateId(),
-        name: person.name,
-        number: person.number
-    }
-    phonebook = phonebook.concat(contact)
-    response.json(contact)
+    const contact = new Person ({
+        name: newPerson.name,
+        number: newPerson.number
+    })
+
+    // phonebook = phonebook.concat(contact)
+    contact.save().then(savedContact => {
+        response.json(savedContact)
+    })
 })
-
-
-
 
 const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
